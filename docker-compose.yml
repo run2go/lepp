@@ -1,0 +1,82 @@
+name: lepp-stack
+
+services:
+    nginx:
+        image: docker.io/library/nginx:mainline
+        container_name: nginx
+        restart: unless-stopped
+        stdin_open: true
+        tty: true
+        depends_on:
+            php:
+                condition: service_healthy
+        ports:
+            - "3000:80"
+        networks:
+            - lepp
+        healthcheck:
+            test: ["CMD-SHELL", "service nginx status || exit 1"]
+            interval: 10s
+            timeout: 10s
+            start_period: 30s
+            retries: 5
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./nginx/conf.d/:/etc/nginx/conf.d/
+            - ./nginx/:/usr/share/nginx/
+            - ./php/fastcgi_params:/etc/nginx/fastcgi_params:ro
+            - ./log/nginx/:/var/log/nginx/
+        environment:
+            - TZ=Europe/Berlin
+
+    php:
+        image: docker.io/library/php:fpm-alpine
+        container_name: php
+        restart: unless-stopped
+        stdin_open: true
+        tty: true
+        networks:
+            - lepp
+        healthcheck:
+            test: ["CMD-SHELL", "pidof php-fpm || exit 1"]
+            interval: 10s
+            timeout: 10s
+            start_period: 5s
+            retries: 5
+        volumes:
+            - ./nginx/:/usr/share/nginx/
+            - ./php/fastcgi_params:/etc/nginx/fastcgi_params:ro
+            - ./php/php.ini:/usr/local/etc/php/php.ini:ro
+            - ./log/php/:/var/log/
+        environment:
+            - TZ=Europe/Berlin
+
+    postgres:
+        image: docker.io/library/postgres:latest
+        container_name: postgres
+        restart: unless-stopped
+        networks:
+            - lepp
+        environment:
+            - POSTGRES_PASSWORD=test_password
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        volumes:
+            - ./postgres/data:/var/lib/postgresql/data
+            - ./log/postgres/:/var/log/postgres/
+
+    # Database Management Tool
+    adminer:
+        image: docker.io/library/adminer:latest
+        container_name: adminer
+        restart: unless-stopped
+        networks:
+            - lepp
+        ports:
+            - "8080:8080"
+
+networks:
+    lepp:
