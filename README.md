@@ -20,7 +20,7 @@ This repo sets up a LEPP (Linux, Nginx, PostgreSQL, PHP) stack using Docker and 
 2. Start the container stack:
 
     ```sh
-    docker-compose up -d
+    docker compose up -d
     ```
 
 3. Access the services:
@@ -49,7 +49,7 @@ This stack consists of the following services:
 
 ## Network
 
-Docker Compose creates a default network for the services defined in the `docker-compose.yml` file. The containers can communicate with each other using their service names as hostnames.
+Docker Compose creates a default network for the services defined in the `ompose.yml` file. The containers can communicate with each other using their service names as hostnames.
 
 ## Nginx Web Server
 
@@ -120,7 +120,7 @@ The stack uses Docker volumes to persist data and configuration files. For simpl
     -   `log/php/`: PHP logs
     -   `log/postgresql/`: PostgreSQL logs
 -   **Configuration**:
-    -   `docker-compose.yml`: Docker Compose configuration file
+    -   `ompose.yml`: Docker Compose configuration file
     -   `nginx/`: Nginx configuration and web root
         -   `conf.d/`: Nginx site configurations
         -   `web/`: Web root directory
